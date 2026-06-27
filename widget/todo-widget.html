@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+  :root {
+    --pink: #FFB2C5;
+    --pink-deep: #FF8FAE;
+    --pink-light: #FFD4DE;
+    --blue: #8EC8E8;
+    --blue-deep: #5BA0D0;
+    --blue-light: #C5E5F5;
+    --white: #FFFFFF;
+    --gold: #FFD666;
+    --text: #5A4050;
+    --text-light: #B098A8;
+    --radius: 22px;
+    --radius-sm: 14px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    /* 极微弱的背景，人眼不可见但能拦截鼠标事件 */
+    background: rgba(255,255,255,0.001);
+    overflow: hidden;
+    font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-app-region: no-drag;
+  }
+
+  /* ========== 粉色气泡（三月七发色） ========== */
+  #bubble {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70px;
+    height: 70px;
+    /* 粉→粉→蓝渐变，还原三月七发色+异色瞳 */
+    background: linear-gradient(135deg, #FFB2C5 0%, #FF9BB5 35%, #F09AB8 55%, #8EC8E8 100%);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+      0 6px 24px rgba(255, 155, 181, 0.45),
+      0 0 0 4px rgba(255, 178, 197, 0.3),
+      0 0 20px rgba(142, 200, 232, 0.2),
+      inset 0 -4px 8px rgba(0,0,0,0.04),
+      inset 0 4px 10px rgba(255,255,255,0.35);
+    animation: float 3s ease-in-out infinite, glowPink 2s ease-in-out infinite;
+    transition: transform 0.15s ease;
+    z-index: 10;
+    -webkit-app-region: no-drag;
+  }
+
+  /* 冰晶高光 */
+  #bubble::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 15px;
+    width: 12px;
+    height: 7px;
+    background: rgba(255,255,255,0.7);
+    border-radius: 50%;
+    transform: rotate(-20deg);
+  }
+
+  /* 小冰晶切面 */
+  #bubble::after {
+    content: '❄️';
+    position: absolute;
+    bottom: 4px;
+    right: 8px;
+    font-size: 10px;
+    opacity: 0.6;
+  }
+
+  #bubble:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+
+  #bubble:active {
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+
+  #bubble .face {
+    font-size: 28px;
+    line-height: 1;
+    pointer-events: none;
+    -webkit-app-region: no-drag;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+  }
+
+  /* 粉色角标 */
+  #bubble .badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #FF8FAE;
+    color: #fff;
+    font-size: 11px;
+    font-weight: bold;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+    box-shadow: 0 2px 8px rgba(255,143,174,0.45);
+    border: 2px solid #fff;
+    transition: transform 0.3s ease;
+  }
+
+  #bubble .badge.count-0 {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  /* ========== 卡片 ========== */
+  #card {
+    position: fixed;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    background: linear-gradient(180deg, #FFFFFF 0%, #FFF5F8 50%, #F5F9FC 100%);
+    border-radius: var(--radius);
+    box-shadow:
+      0 10px 40px rgba(255,155,181,0.22),
+      0 0 60px rgba(142,200,232,0.12),
+      0 0 0 1px rgba(255,178,197,0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+
+  #card.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* 卡片边框 */
+  #card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius);
+    border: 2px solid rgba(255, 178, 197, 0.35);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* 头部：粉→蓝渐变（异色瞳配色） */
+  #card .header {
+    background: linear-gradient(135deg, #FFB2C5 0%, #FF9BB5 40%, #F090B0 55%, #8EC8E8 100%);
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    -webkit-app-region: drag;
+  }
+
+  /* 四瓣花 + 冰晶装饰 */
+  #card .header::after {
+    content: '✿ ❄️ ✿';
+    position: absolute;
+    bottom: -4px;
+    right: 36px;
+    font-size: 13px;
+    opacity: 0.5;
+    animation: sparkle 1.5s ease-in-out infinite;
+  }
+
+  #card .header .title {
+    color: #fff;
+    font-size: 17px;
+    font-weight: bold;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    letter-spacing: 2px;
+  }
+
+  #card .header .close-btn {
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: rgba(255,255,255,0.25);
+    color: #fff;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    -webkit-app-region: no-drag;
+  }
+
+  #card .header .close-btn:hover {
+    background: rgba(255,255,255,0.45);
+    transform: rotate(90deg);
+  }
+
+  #card .input-area {
+    display: flex;
+    padding: 12px 14px;
+    gap: 8px;
+    background: #fff;
+    -webkit-app-region: no-drag;
+  }
+
+  #card .input-area input {
+    flex: 1;
+    border: 2px solid #FFE4EC;
+    border-radius: var(--radius-sm);
+    padding: 9px 14px;
+    font-size: 14px;
+    outline: none;
+    background: #FFFAFB;
+    color: var(--text);
+    transition: all 0.3s ease;
+    font-family: inherit;
+  }
+
+  #card .input-area input:focus {
+    border-color: #FFB2C5;
+    box-shadow: 0 0 0 3px rgba(255,178,197,0.2);
+    background: #fff;
+  }
+
+  #card .input-area input::placeholder {
+    color: #D4BCC5;
+  }
+
+  /* 添加按钮：粉蓝渐变 */
+  #card .input-area .add-btn {
+    width: 38px;
+    height: 38px;
+    border: none;
+    background: linear-gradient(135deg, #FFB2C5, #FF8FAE);
+    color: #fff;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 19px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(255,143,174,0.3);
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  #card .input-area .add-btn:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 16px rgba(255,143,174,0.4);
+  }
+
+  #card .input-area .add-btn:active {
+    transform: scale(0.95);
+  }
+
+  #card .list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 14px 8px;
+    max-height: 360px;
+    min-height: 60px;
+    -webkit-app-region: no-drag;
+  }
+
+  #card .list::-webkit-scrollbar { width: 5px; }
+  #card .list::-webkit-scrollbar-track { background: transparent; }
+  #card .list::-webkit-scrollbar-thumb { background: #FFD4DE; border-radius: 10px; }
+
+  #card .list .empty {
+    text-align: center;
+    padding: 30px 0;
+    color: #C8B0B8;
+    font-size: 13px;
+    line-height: 1.8;
+  }
+
+  #card .list .empty .icon {
+    font-size: 36px;
+    display: block;
+    margin-bottom: 8px;
+    animation: float 2s ease-in-out infinite;
+  }
+
+  .todo-item {
+    display: flex;
+    align-items: center;
+    padding: 9px 10px;
+    margin: 5px 0;
+    background: #FFFAFB;
+    border-radius: var(--radius-sm);
+    gap: 8px;
+    transition: all 0.3s ease;
+    border: 1.5px solid transparent;
+    animation: slideIn 0.25s ease-out;
+  }
+
+  .todo-item:hover {
+    border-color: #FFE4EC;
+    box-shadow: 0 4px 16px rgba(255,178,197,0.12);
+    background: #fff;
+  }
+
+  .todo-item .checkbox {
+    width: 21px;
+    height: 21px;
+    border-radius: 50%;
+    border: 2.5px solid #FFB2C5;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+    background: #fff;
+  }
+
+  .todo-item .checkbox:hover {
+    border-color: #FF8FAE;
+    background: #FFF0F3;
+  }
+
+  .todo-item .checkbox.checked {
+    background: linear-gradient(135deg, #FFB2C5, #FF8FAE);
+    border-color: #FF8FAE;
+  }
+
+  .todo-item .checkbox.checked::after {
+    content: '✓';
+    color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  .todo-item .text {
+    flex: 1;
+    font-size: 13px;
+    color: var(--text);
+    transition: all 0.3s ease;
+    word-break: break-word;
+  }
+
+  .todo-item .text.done {
+    text-decoration: line-through;
+    color: #C0A8B0;
+    opacity: 0.5;
+  }
+
+  .todo-item .del-btn {
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: transparent;
+    color: #D4C0C8;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    opacity: 0;
+  }
+
+  .todo-item:hover .del-btn { opacity: 1; }
+  .todo-item .del-btn:hover {
+    background: #FFE4EC;
+    color: #FF8FAE;
+  }
+
+  /* 底部 */
+  #card .footer {
+    padding: 8px 20px 14px;
+    text-align: center;
+    font-size: 11px;
+    color: #C8B0B8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  #card .footer .count {
+    font-weight: bold;
+    color: #FF8FAE;
+  }
+
+  /* ========== 提示文字 ========== */
+  #hint {
+    position: fixed;
+    bottom: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: rgba(180, 130, 150, 0.55);
+    white-space: nowrap;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  /* ========== 动画 ========== */
+  @keyframes float {
+    0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+    50% { transform: translate(-50%, -50%) translateY(-6px); }
+  }
+
+  @keyframes glowPink {
+    0%, 100% {
+      box-shadow:
+        0 6px 24px rgba(255,155,181,0.45),
+        0 0 0 4px rgba(255,178,197,0.3),
+        0 0 20px rgba(142,200,232,0.2),
+        inset 0 -4px 8px rgba(0,0,0,0.04),
+        inset 0 4px 10px rgba(255,255,255,0.35);
+    }
+    50% {
+      box-shadow:
+        0 6px 30px rgba(255,155,181,0.6),
+        0 0 0 6px rgba(255,178,197,0.4),
+        0 0 28px rgba(142,200,232,0.3),
+        inset 0 -4px 8px rgba(0,0,0,0.04),
+        inset 0 4px 10px rgba(255,255,255,0.35);
+    }
+  }
+
+  @keyframes sparkle {
+    0%, 100% { opacity: 0.3; transform: translateY(0); }
+    50% { opacity: 0.7; transform: translateY(-5px); }
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-15px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes shake {
+    0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}
+  }
+
+  .shake {
+    animation: shake 0.4s ease;
+  }
+</style>
+</head>
+<body>
+
+<div id="bubble">
+  <span class="face">📸</span>
+  <span class="badge" id="badge"></span>
+</div>
+<div id="hint">点咱打开待办~</div>
+
+<div id="card">
+  <div class="header">
+    <span class="title">📸 三月七 · 随手记 ❄️</span>
+    <button class="close-btn" id="closeBtn">✕</button>
+  </div>
+  <div class="input-area">
+    <input type="text" id="todoInput" placeholder="✿ 咱要记下这件事..." maxlength="60">
+    <button class="add-btn" id="addBtn">＋</button>
+  </div>
+  <div class="list" id="todoList">
+    <div class="empty">
+      <span class="icon">📸</span>
+      今天还没拍照记录呢~<br>拍下来就不会忘啦！
+    </div>
+  </div>
+  <div class="footer">
+    <span>✿ 还剩</span>
+    <span class="count" id="remainCount">0</span>
+    <span>件事没拍~</span>
+  </div>
+</div>
+
+<script>
+(function() {
+  const bubble = document.getElementById('bubble');
+  const card = document.getElementById('card');
+  const badge = document.getElementById('badge');
+  const hint = document.getElementById('hint');
+  const closeBtn = document.getElementById('closeBtn');
+  const todoInput = document.getElementById('todoInput');
+  const addBtn = document.getElementById('addBtn');
+  const todoList = document.getElementById('todoList');
+  const remainCount = document.getElementById('remainCount');
+
+  let isOpen = false;
+  let isDragging = false;
+  let dragStartX = 0, dragStartY = 0;
+  let hasMoved = false;
+
+  // ========== 气泡拖拽（手动处理，避免 webkit-app-region 吞点击） ==========
+  bubble.addEventListener('mousedown', (e) => {
+    if (isOpen) return;
+    isDragging = true;
+    hasMoved = false;
+    dragStartX = e.screenX;
+    dragStartY = e.screenY;
+    bubble.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    const dx = e.screenX - dragStartX;
+    const dy = e.screenY - dragStartY;
+    if (Math.abs(dx) > 2 || Math.abs(dy) > 2) {
+      hasMoved = true;
+    }
+    if (hasMoved && window.widgetAPI) {
+      window.widgetAPI.moveWindow(dx, dy);
+      dragStartX = e.screenX;
+      dragStartY = e.screenY;
+    }
+  });
+
+  document.addEventListener('mouseup', (e) => {
+    if (!isDragging) return;
+    isDragging = false;
+    bubble.style.cursor = 'pointer';
+    if (!hasMoved) {
+      // 没拖动 = 点击 → 打开卡片
+      openCard();
+    }
+  });
+
+  const STORAGE_KEY = 'march7-todo-items';
+
+  function loadTodos() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+    catch (e) { return []; }
+  }
+
+  function saveTodos(todos) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+  }
+
+  let todos = loadTodos();
+
+  function render() {
+    todoList.innerHTML = '';
+    if (todos.length === 0) {
+      todoList.innerHTML = `<div class="empty"><span class="icon">📸</span>今天还没拍照记录呢~<br>拍下来就不会忘啦！</div>`;
+    } else {
+      todos.forEach((todo, i) => {
+        const item = document.createElement('div');
+        item.className = 'todo-item';
+        item.innerHTML = `
+          <div class="checkbox ${todo.done ? 'checked' : ''}" data-index="${i}"></div>
+          <span class="text ${todo.done ? 'done' : ''}">${escapeHtml(todo.text)}</span>
+          <button class="del-btn" data-index="${i}" title="删除">🗑</button>`;
+        todoList.appendChild(item);
+      });
+    }
+    const remaining = todos.filter(t => !t.done).length;
+    remainCount.textContent = remaining;
+    badge.textContent = remaining > 0 ? remaining : '';
+    badge.className = remaining === 0 ? 'badge count-0' : 'badge';
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function addTodo() {
+    const text = todoInput.value.trim();
+    if (!text) return;
+    if (text.length > 60) {
+      todoInput.classList.add('shake');
+      setTimeout(() => todoInput.classList.remove('shake'), 400);
+      return;
+    }
+    todos.push({ text, done: false, createdAt: Date.now() });
+    saveTodos(todos);
+    todoInput.value = '';
+    render();
+  }
+
+  function toggleTodo(index) {
+    if (index < 0 || index >= todos.length) return;
+    todos[index].done = !todos[index].done;
+    saveTodos(todos);
+    render();
+  }
+
+  function deleteTodo(index) {
+    if (index < 0 || index >= todos.length) return;
+    todos.splice(index, 1);
+    saveTodos(todos);
+    render();
+  }
+
+  function openCard() {
+    if (isOpen) return;
+    isOpen = true;
+    bubble.style.display = 'none';
+    hint.style.display = 'none';
+    card.classList.add('open');
+    if (window.widgetAPI) window.widgetAPI.expand();
+    setTimeout(() => { if (todoInput) todoInput.focus(); }, 350);
+  }
+
+  function closeCard() {
+    if (!isOpen) return;
+    isOpen = false;
+    card.classList.remove('open');
+    todoInput.value = '';
+    if (window.widgetAPI) window.widgetAPI.collapse();
+    setTimeout(() => {
+      bubble.style.display = 'flex';
+      hint.style.display = 'block';
+    }, 200);
+  }
+
+  closeBtn.addEventListener('click', (e) => { e.stopPropagation(); closeCard(); });
+  addBtn.addEventListener('click', addTodo);
+  todoInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') addTodo();
+    if (e.key === 'Escape') closeCard();
+  });
+  todoList.addEventListener('click', (e) => {
+    const cb = e.target.closest('.checkbox');
+    const db = e.target.closest('.del-btn');
+    if (cb) toggleTodo(parseInt(cb.dataset.index));
+    if (db) deleteTodo(parseInt(db.dataset.index));
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isOpen) closeCard();
+    if (e.ctrlKey && e.key === 'n') {
+      e.preventDefault();
+      if (!isOpen) openCard(); else todoInput.focus();
+    }
+  });
+
+  render();
+  console.log('📸 三月七主题待办挂件已就绪！粉蓝异色瞳配色~');
+})();
+</script>
+</body>
+</html>

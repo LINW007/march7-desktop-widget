@@ -1,0 +1,16 @@
+{
+  "name": "widget",
+  "version": "1.0.0",
+  "description": "二次元桌面待办小挂件",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "electron": "^42.5.0"
+  }
+}

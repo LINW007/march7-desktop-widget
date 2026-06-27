@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(npm cache *)",
+      "PowerShell(where.exe python 2>&1; python -c \"import sys; print\\(sys.version\\)\" 2>&1)",
+      "PowerShell(py *)",
+      "PowerShell($env:Path = [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"Machine\"\\) + \";\" + [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"User\"\\); & \"D:\\\\1.Cc\\\\widget\\\\launch.ps1\")",
+      "PowerShell(npm install *)",
+      "PowerShell($env:Path = [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"Machine\"\\) + \";\" + [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"User\"\\); cd D:\\\\1.Cc\\\\widget; npx electron . 2>&1)",
+      "PowerShell(Get-Process *)",
+      "WebSearch",
+      "PowerShell($env:Path = [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"Machine\"\\) + \";\" + [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"User\"\\); Set-Location D:\\\\1.Cc; git status 2>&1)",
+      "PowerShell(git init *)",
+      "PowerShell(git *)"
+    ]
+  }
+}
