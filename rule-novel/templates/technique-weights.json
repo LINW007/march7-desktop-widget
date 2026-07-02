@@ -1,0 +1,128 @@
+{
+  "version": "1.0",
+  "description": "人性化技法权重配置 — 12种去AI化写作技法及其推荐使用权重。ChapterWriter 每章从中随机采样 ≥3 种。",
+  "techniques": [
+    {
+      "id": "T01",
+      "name": "思维中断",
+      "description": "角色在思考/说话时突然被打断——被感官刺激闯入、突发记忆闪现、旁人打断",
+      "weight": 0.09,
+      "difficulty": "medium",
+      "best_in": "决策场景、对话场景",
+      "overuse_risk": "过多会让读者觉得角色注意力不集中"
+    },
+    {
+      "id": "T02",
+      "name": "感官侵入",
+      "description": "用身体感受（触觉/温度/嗅觉/味觉/内脏感觉）替代抽象情绪描写",
+      "weight": 0.14,
+      "difficulty": "easy",
+      "best_in": "情感场景、紧张场景",
+      "overuse_risk": "低——这是最安全的技法，可以频繁使用"
+    },
+    {
+      "id": "T03",
+      "name": "自我纠正",
+      "description": "角色推翻自己刚说/刚想的话：'不对——他不是这个意思。'",
+      "weight": 0.08,
+      "difficulty": "easy",
+      "best_in": "内心独白、推理场景",
+      "overuse_risk": "每章 1-2 次最佳，过多显得角色优柔寡断"
+    },
+    {
+      "id": "T04",
+      "name": "方言滑落",
+      "description": "角色在情绪激动/放松时露出方言、口癖、口头禅",
+      "weight": 0.06,
+      "difficulty": "hard",
+      "best_in": "高情绪对话",
+      "overuse_risk": "需要前期建立角色语言习惯，否则显得突兀"
+    },
+    {
+      "id": "T05",
+      "name": "不完整句",
+      "description": "句子说到一半戛然而止，留给读者脑补——用破折号或省略号收尾",
+      "weight": 0.10,
+      "difficulty": "easy",
+      "best_in": "威胁场景、情感爆发、章末钩子",
+      "overuse_risk": "每章 2-3 处最佳，过多显得故弄玄虚"
+    },
+    {
+      "id": "T06",
+      "name": "反问",
+      "description": "用角色内心反问代替叙述者评判：'他这么做，到底图什么？'",
+      "weight": 0.08,
+      "difficulty": "easy",
+      "best_in": "角色内心冲突、道德困境",
+      "overuse_risk": "连续反问是大忌"
+    },
+    {
+      "id": "T07",
+      "name": "意识流",
+      "description": "连续自由联想，跳跃式思维片段：A→联想到B→C→突然回到A",
+      "weight": 0.06,
+      "difficulty": "hard",
+      "best_in": "角色迷茫/走神/回忆场景",
+      "overuse_risk": "高风险技法——用好了出彩，用不好读者看不懂。每 3-5 章用一次"
+    },
+    {
+      "id": "T08",
+      "name": "情感跳跃",
+      "description": "同一段内情绪快速切换：愤怒→突然觉得好笑→又被悲伤覆盖",
+      "weight": 0.08,
+      "difficulty": "hard",
+      "best_in": "重大变故场景、角色成长节点",
+      "overuse_risk": "需要足够铺垫，否则读者会觉得角色情绪不稳定"
+    },
+    {
+      "id": "T09",
+      "name": "言行矛盾",
+      "description": "角色说一套做一套，或内心两种想法并存：嘴上说不在乎，手却在发抖",
+      "weight": 0.10,
+      "difficulty": "medium",
+      "best_in": "情感场景、角色塑造",
+      "overuse_risk": "低——这是塑造立体角色的核心技法"
+    },
+    {
+      "id": "T10",
+      "name": "嵌套补充",
+      "description": "说完一层后马上补充修正：'他去了城南。不，是城北。也可能都不是。'",
+      "weight": 0.06,
+      "difficulty": "medium",
+      "best_in": "推理/回忆/不确定场景",
+      "overuse_risk": "每章 ≤2 次"
+    },
+    {
+      "id": "T11",
+      "name": "突然转题",
+      "description": "对话中一方突然切换话题——刚才还在谈正事，突然问'你吃饭了吗'",
+      "weight": 0.08,
+      "difficulty": "easy",
+      "best_in": "日常对话、缓解紧张",
+      "overuse_risk": "每章 1-2 次，需与角色性格匹配"
+    },
+    {
+      "id": "T12",
+      "name": "留白收尾",
+      "description": "章末不用总结句，用画面/细节/动作收束——不写'今天真是漫长的一天'，写窗外天亮了",
+      "weight": 0.07,
+      "difficulty": "medium",
+      "best_in": "章末、场景转换",
+      "overuse_risk": "低——这是每章收尾都应该用的技法"
+    }
+  ],
+  "sampling_strategy": {
+    "per_chapter_min": 3,
+    "avoid_consecutive_repeat": true,
+    "avoid_same_category_consecutive": true,
+    "weight_influences_selection": true,
+    "note": "每章从12种技法中按权重随机采样≥3种。连续两章不重复使用相同的技法组合。同一大类的技法不连续使用（如 T03 和 T10 都属于'修正类'）。"
+  },
+  "category_groups": {
+    "结构类": ["T01", "T05", "T12"],
+    "感官类": ["T02"],
+    "思维类": ["T03", "T06", "T07", "T10"],
+    "情感类": ["T04", "T08", "T09"],
+    "对话类": ["T11"]
+  }
+}
