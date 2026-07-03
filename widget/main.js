@@ -1,6 +1,20 @@
 const { app, BrowserWindow, ipcMain, screen } = require('electron');
 const path = require('path');
 
+// 单实例锁：只允许运行一个窗口，重复启动则激活已有窗口
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+      mainWindow.show();
+    }
+  });
+}
+
 let mainWindow;
 
 // 窗口尺寸
@@ -95,13 +109,6 @@ ipcMain.on('collapse', () => {
     width: COLLAPSED_SIZE.width,
     height: COLLAPSED_SIZE.height
   }, true); // animate
-});
-
-// IPC: 移动窗口（拖拽）
-ipcMain.on('move-window', (event, { deltaX, deltaY }) => {
-  if (!mainWindow) return;
-  const [x, y] = mainWindow.getPosition();
-  mainWindow.setPosition(x + deltaX, y + deltaY);
 });
 
 app.whenReady().then(createWindow);

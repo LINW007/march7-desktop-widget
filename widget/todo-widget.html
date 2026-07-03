@@ -56,7 +56,7 @@
     animation: float 3s ease-in-out infinite, glowPink 2s ease-in-out infinite;
     transition: transform 0.15s ease;
     z-index: 10;
-    -webkit-app-region: no-drag;
+    -webkit-app-region: drag;  /* 原生拖拽，系统接管，无 IPC 竞态 */
   }
 
   /* 冰晶高光 */
@@ -503,42 +503,37 @@
   const remainCount = document.getElementById('remainCount');
 
   let isOpen = false;
-  let isDragging = false;
-  let dragStartX = 0, dragStartY = 0;
-  let hasMoved = false;
+  let mouseDownX = 0, mouseDownY = 0;
+  let mouseMoved = false;
 
-  // ========== 气泡拖拽（手动处理，避免 webkit-app-region 吞点击） ==========
+  // ========== 气泡拖拽 / 点击（用原生 drag region，彻底避免 IPC 竞态） ==========
+  // 策略：
+  //   -webkit-app-region: drag 让系统处理拖拽（无 IPC，无延时，不失控）
+  //   手动监听 mousedown/mouseup 判断"点击"（drag region 会吞 click 事件）
+  //   如果按下和松开之间鼠标没移动 → 视为点击 → 打开卡片
   bubble.addEventListener('mousedown', (e) => {
     if (isOpen) return;
-    isDragging = true;
-    hasMoved = false;
-    dragStartX = e.screenX;
-    dragStartY = e.screenY;
-    bubble.style.cursor = 'grabbing';
-    e.preventDefault();
+    if (e.button !== 0) return;
+    mouseDownX = e.screenX;
+    mouseDownY = e.screenY;
+    mouseMoved = false;
+
+    // 监听本次拖拽/点击的结束
+    const onUp = (ev) => {
+      document.removeEventListener('mouseup', onUp);
+      if (!mouseMoved && !isOpen) {
+        openCard();
+      }
+    };
+    document.addEventListener('mouseup', onUp);
   });
 
+  // 全局监测鼠标移动（拖拽仍然由 -webkit-app-region: drag 原生处理）
   document.addEventListener('mousemove', (e) => {
-    if (!isDragging) return;
-    const dx = e.screenX - dragStartX;
-    const dy = e.screenY - dragStartY;
-    if (Math.abs(dx) > 2 || Math.abs(dy) > 2) {
-      hasMoved = true;
-    }
-    if (hasMoved && window.widgetAPI) {
-      window.widgetAPI.moveWindow(dx, dy);
-      dragStartX = e.screenX;
-      dragStartY = e.screenY;
-    }
-  });
-
-  document.addEventListener('mouseup', (e) => {
-    if (!isDragging) return;
-    isDragging = false;
-    bubble.style.cursor = 'pointer';
-    if (!hasMoved) {
-      // 没拖动 = 点击 → 打开卡片
-      openCard();
+    if (isOpen) return;
+    if ((e.buttons & 1) === 0) return; // 左键没按 → 不关心
+    if (Math.abs(e.screenX - mouseDownX) > 3 || Math.abs(e.screenY - mouseDownY) > 3) {
+      mouseMoved = true;
     }
   });
 
