@@ -103,7 +103,8 @@
       "Bash(cp D:/1.Cc/rule-novel/正文/第1卷/ch*.md /c/Users/23565/Desktop/)",
       "Read(//c/Users/23565/Desktop/**)",
       "Bash(python scripts/rhythm-analyzer.py \"D:\\\\1.Cc\\\\rule-novel\\\\正文\\\\第1卷\\\\ch0002.md\" -g 悬疑)",
-      "WebFetch(domain:mp.weixin.qq.com)"
+      "WebFetch(domain:mp.weixin.qq.com)",
+      "WebFetch(domain:m.toutiao.com)"
     ]
   }
 }
